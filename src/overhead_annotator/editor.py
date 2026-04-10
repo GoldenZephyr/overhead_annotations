@@ -4,7 +4,8 @@ from matplotlib.patches import Polygon as MplPolygon
 from matplotlib.widgets import Button
 from matplotlib.path import Path
 import matplotlib
-matplotlib.use('Qt5Agg')
+
+matplotlib.use("Qt5Agg")
 import tkinter as tk
 from tkinter import simpledialog
 from model import Region, MapAnnotation
@@ -60,22 +61,33 @@ class Editor:
 
         # Disconnect default pan/zoom key bindings that conflict
         # and optionally start with toolbar in neutral mode
-        self.fig.canvas.manager.toolbar.mode = ''
+        self.fig.canvas.manager.toolbar.mode = ""
         # Remove default key bindings that conflict with ours
-        for key in ['z', 'backspace', 'escape', 'delete']:
+        for key in ["z", "backspace", "escape", "delete"]:
             # Some backends bind z to "undo zoom", etc.
             try:
-                plt.rcParams[f'keymap.back'] = [
-                    k for k in plt.rcParams.get('keymap.back', []) if k != key
+                plt.rcParams[f"keymap.back"] = [
+                    k for k in plt.rcParams.get("keymap.back", []) if k != key
                 ]
             except Exception:
                 pass
 
         # Nuclear option: unbind all default keymap conflicts
         import matplotlib as mpl
-        for action in ['back', 'forward', 'home', 'pan', 'zoom',
-                       'save', 'quit', 'fullscreen', 'yscale', 'xscale']:
-            keymap_key = f'keymap.{action}'
+
+        for action in [
+            "back",
+            "forward",
+            "home",
+            "pan",
+            "zoom",
+            "save",
+            "quit",
+            "fullscreen",
+            "yscale",
+            "xscale",
+        ]:
+            keymap_key = f"keymap.{action}"
             if keymap_key in mpl.rcParams:
                 mpl.rcParams[keymap_key] = []
 
@@ -125,7 +137,7 @@ class Editor:
         txt = self.ax.text(
             cx,
             cy,
-            f"{region.label}\n{region.id[:8]}",
+            f"{region.label}\n{', '.join(region.tags)}",
             ha="center",
             va="center",
             fontsize=7,
@@ -206,9 +218,11 @@ class Editor:
     #  Mouse press                                                        #
     # ------------------------------------------------------------------ #
     def _on_press(self, event):
-        print(f"PRESS: button={event.button}, key={event.key}, "
-          f"inaxes={event.inaxes is not None}, "
-          f"toolbar_mode='{self.fig.canvas.manager.toolbar.mode}'")
+        print(
+            f"PRESS: button={event.button}, key={event.key}, "
+            f"inaxes={event.inaxes is not None}, "
+            f"toolbar_mode='{self.fig.canvas.manager.toolbar.mode}'"
+        )
         if event.inaxes != self.ax:
             return
 
