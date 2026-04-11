@@ -2,17 +2,26 @@ from model import GeoReference
 from fetch import latlon_to_utm, utm_to_latlon
 
 
+def pixel_to_local_utm(px, py, georef: GeoReference):
+    """Pixel (x right, y down) → Local UTM (easting, northing) relative to georef LL corner in metres."""
+    easting, northing = pixel_to_utm(px, py, georef)
+    local_easting = easting - georef.utm_left
+    local_northing = northing - georef.utm_bottom
+
+    return local_easting, local_northing
+
+
 def pixel_to_utm(px, py, georef: GeoReference):
     """Pixel (x right, y down) → UTM (easting, northing) in metres."""
-    easting  = georef.utm_left + px * georef.resolution_x
-    northing = georef.utm_top  - py * georef.resolution_y   # y is flipped
+    easting = georef.utm_left + px * georef.resolution_x
+    northing = georef.utm_top - py * georef.resolution_y  # y is flipped
     return easting, northing
 
 
 def utm_to_pixel(easting, northing, georef: GeoReference):
     """UTM (easting, northing) → pixel (x, y)."""
-    px = (easting  - georef.utm_left) / georef.resolution_x
-    py = (georef.utm_top - northing)  / georef.resolution_y
+    px = (easting - georef.utm_left) / georef.resolution_x
+    py = (georef.utm_top - northing) / georef.resolution_y
     return px, py
 
 
