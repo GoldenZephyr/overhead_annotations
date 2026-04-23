@@ -2,6 +2,7 @@ from overhead_annotator.serde import load, save
 from overhead_annotator.model import Region
 import numpy as np
 import cv2
+import sys
 
 
 def yaw_to_R(yaw: float):
@@ -14,9 +15,11 @@ def rectangularize(r: Region):
     rect = cv2.minAreaRect(pts_2d.astype(np.float32))
     r.vertices = cv2.boxPoints(rect)
 
-
-annotations = load("overhead_annotations.yaml")
+fn = sys.argv[1]
+annotations = load(fn)
 for r in annotations.regions:
     rectangularize(r)
 
-save(annotations, "rectangular_annotations.yaml")
+parts = fn.split('.')
+out_fn = parts[0] + '_rectangle.yaml'
+save(annotations, out_fn)

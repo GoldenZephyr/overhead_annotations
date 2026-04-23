@@ -1,27 +1,21 @@
 from overhead_annotator.serde import load
-from overhead_annotator.model import Region
 from overhead_annotator.geo import pixel_to_local_utm
 import numpy as np
-import cv2
 import yaml
 from scipy.spatial.transform import Rotation as R
+import sys
 
 
 def yaw_to_R(yaw: float):
     return np.array([[np.cos(yaw), -np.sin(yaw)], [np.sin(yaw), np.cos(yaw)]])
 
 
-def rectangularize(r: Region):
-    pts_2d = np.array(r.vertices)
-
-    rect = cv2.minAreaRect(pts_2d.astype(np.float32))
-    r.vertices = cv2.boxPoints(rect)
-
-
 region_id_to_rectangles = {}
 region_id_to_semantic_class = {}
 
-annotations = load("rectangular_annotations.yaml")
+fn = sys.argv[1]
+fn_out = sys.argv[2]
+annotations = load(fn)
 for r in annotations.regions:
     assert r.label.startswith("r")
     room_idx = int(r.label[1:])
@@ -53,5 +47,5 @@ for r in annotations.regions:
     region_id_to_rectangles[room_idx].append(box)
 
 
-with open("gt_rooms_for_hydra.yaml", "w") as fo:
+with open(fn_out, "w") as fo:
     yaml.dump(region_id_to_rectangles, fo, sort_keys=True)
